@@ -1,4 +1,4 @@
-# Bengaluru Mobility — Case Study 1
+# The 8PM Problem — Case Study 1
 
 A multi-tool analysis of road traffic, Namma Metro ridership, weather, and public search interest across Bengaluru, covering **October 2025 – September 2026** (13 road routes, hourly granularity).
 
