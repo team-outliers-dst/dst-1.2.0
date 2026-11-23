@@ -1,0 +1,5 @@
+rain_band,avg_congestion,n_rows
+No rain,1.5461,84709
+Light (<2.5 mm/h),1.7841,17117
+Moderate (2.5-7.6 mm/h),1.7463,741
+Heavy (>7.6 mm/h),1.91,48

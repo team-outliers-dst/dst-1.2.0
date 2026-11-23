@@ -1,0 +1,12 @@
+step,rows,note
+traffic: rows loaded from CSV,113880.0,
+traffic: after dropping rows with null keys,113880.0,0 dropped
+traffic: after resample to one row per route-hour,113880.0,0 duplicate readings collapsed
+weather: rows loaded from bengaluru_13_routes_weather_aug_sep_2025.csv,19032.0,
+weather: rows loaded from bengaluru_13_routes_weather_oct_2025_sep_2026.csv,113880.0,
+weather: after combining both files,132912.0,
+weather: after removing duplicate route-hours,132912.0,0 duplicates removed
+weather: time-zone check,,temperature peaks at hour 14
+join: traffic LEFT JOIN weather,113880.0,should equal the resampled traffic rows
+join: traffic rows with no weather match,0.0,expected 0
+analysis set: observed rows only,102615.0,interpolated / missing rows excluded from the averages

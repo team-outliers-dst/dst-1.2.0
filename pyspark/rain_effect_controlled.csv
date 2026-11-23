@@ -1,0 +1,4 @@
+rain_band,extra_congestion_vs_no_rain,rows_compared,matched_cells
+Light (<2.5 mm/h),0.0056,16653,471
+Moderate (2.5-7.6 mm/h),0.0396,628,55
+Heavy (>7.6 mm/h),0.1547,25,3
