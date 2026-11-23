@@ -1,0 +1,9 @@
+Source,Table,Rows expected,Rows loaded,"Flagged, kept",Excluded from analysis,Note
+"Traffic (13 routes x 8,760 h)",traffic_bangalore_clean_2025-10_2026-09,113880,113880,6810,11265,"Excluded = interpolated + empty rows; analyses use observed rows. Flagged = observed rows with a qa_flag, kept."
+Weather Aug-Sep 2025,bengaluru_13_routes_weather_aug_sep_2025,19032,19032,0,0,"No gaps, duplicates or nulls."
+Weather Oct 2025-Sep 2026,bengaluru_13_routes_weather_oct_2025_sep_2026,113880,113880,0,0,"No gaps, duplicates or nulls. Joined to traffic 1:1."
+Metro hourly,hourly_station_entry_exit,121512,92280,791,17208,"Expected = 61 days x 24 h x 83 stations. Missing = 3,336 not-yet-open + 25,896 absent days. Excluded from Figure 4 = the 15 new stations + public-holiday days."
+Metro daily,Metro_dailyticket_Aug25_Nov26,476,279,213,93,"Missing = days BMRCL did not publish. Flagged = Total QR does not match its channels. Excluded from Figure 5 = 2 bad rows, dates outside 1 Oct 2025-11 Aug 2026, public holidays, and days with no road data."
+Google Trends traffic,trends_daily_traffic,365,365,21,0,"Complete. Spikes flagged, kept."
+Google Trends metro,trends_daily_metro,61,61,4,0,"Complete. Spikes flagged, kept."
+Holiday calendar,bengaluru_holiday_festival_calendar,476,476,0,0,Complete. Misses some real events (T9).
