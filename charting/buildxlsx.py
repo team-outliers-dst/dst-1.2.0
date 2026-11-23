@@ -52,13 +52,25 @@ for r in range(2, len(ev) + 2):
     for c in (6,): ws3.cell(r, c).number_format = "#,##0"
 ws3.cell(len(ev) + 3, 1, "Dates with the most traffic rows flagged extreme_event. Calendar_label 'none' = the holiday/festival calendar has no entry for that date. Metro robust z = median/MAD z-score of the daily total.").font = F(italic=True, color="595959")
 
+for name, csv, widths in [("Data_Inventory", "data_inventory.csv", [16, 30, 26, 10, 12, 26, 10, 8, 9, 30, 50]),
+                           ("V_Profile", "v_profile.csv", [16, 30, 8, 14, 9, 8, 8, 10, 11, 11, 9, 9, 9, 40, 22, 60]),
+                           ("Source_Register", "source_register.csv", [8, 30, 22, 45, 26, 55, 60, 22, 34])]:
+    p = src / csv
+    if not p.exists(): sys.exit(f"{p} missing: run build_docs_tables.py first")
+    d = pd.read_csv(p); w = wb.create_sheet(name); table(w, d, widths); w.auto_filter.ref = w.dimensions
+    if name == "Source_Register":
+        for r in range(2, len(d) + 2):
+            if "TO FILL" in " ".join(str(w.cell(r, c).value) for c in range(1, d.shape[1] + 1)):
+                for c in range(1, d.shape[1] + 1): w.cell(r, c).fill = ask_fill
+
 ws4 = wb.create_sheet("Read_Me")
 lines = [("Cleaning log: Bengaluru weekday commuting case study (Case Study B)", True),
  ("One row per cleaning decision: problem, how it was found, rows affected, action, why. Every number is computed by build_cleaning_log_and_charts.py from the final data, not typed in.", False),
- ("Yellow rows = need a teammate to confirm (method detail that is not visible in the data files).", False),
- ("Sheets: Cleaning_Log (42 decisions), Reconciliation (rows expected / loaded / missing / flagged / excluded per source, with formulas), Evidence_Events (extreme-traffic dates checked against calendar, metro and Trends).", False),
- ("Assumptions: Metro hourly expected grid = 61 days x 24 h x 83 stations. Weekday groups: Mon, Tue-Thu, Fri, Weekend. Rainy evening = at least 0.1 mm in an hour of 18:00-21:00. Interpolation cap for traffic = 3 hours (confirm with the teammate who cleaned it).", False),
- ("To reproduce: python3 -I build_cleaning_log_and_charts.py <final_data_dir> <out_dir>, then python3 -I build_xlsx.py <out_dir> <file.xlsx>.", False)]
+ ("Yellow rows = need a teammate to confirm (method detail that is not visible in the data files). On Source_Register, yellow = a field marked TO FILL.", False),
+ (f"Sheets: Cleaning_Log ({len(log)} decisions), Reconciliation (rows expected / loaded / missing / flagged / excluded per source, with formulas), Evidence_Events (extreme-traffic dates checked against calendar, metro and Trends), "
+  "Data_Inventory (every field: level of measurement and structure), V_Profile (rows, MB, arrival rate, format and dominant V per table), Source_Register (URL, access date, method, terms of use).", False),
+ ("Assumptions: Metro hourly expected grid = 61 days x 24 h x 83 stations. Weekday groups: Mon, Tue-Thu, Fri, Weekend. Rainy evening = at least 0.1 mm in an hour of 18:00-21:00. Traffic interpolation = linear, gaps of 3 hours or less (rule reproduced from the data, see T4).", False),
+ ("To reproduce: python charting/cleanchart.py, then python charting/build_docs_tables.py, then python charting/buildxlsx.py.", False)]
 for i, (t, b) in enumerate(lines, 1):
     c = ws4.cell(i, 1, t); c.font = F(bold=b, size=12 if b else 10); c.alignment = Alignment(wrap_text=True, vertical="top")
 ws4.column_dimensions["A"].width = 120

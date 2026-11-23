@@ -169,6 +169,36 @@ mm_per_route = bool((mm["min"] == 0).all() and (mm["max"] == 1).all())
 emb_null = int(t.temp.isna().sum())
 spd_diff = float((t.speed_kmph - t.distance_km / (t.duration_min / 60)).abs().max())
 ci_diff = float((t.congestion_index - t.duration_min / t.freeflow_min).abs().max())
+# T4 rule check: interpolated duration = straight line between the observed neighbours (per route), rounded to 3 dp
+_lin = t.duration_min.where(t.row_status == "observed").groupby(t.route_code).transform(lambda s: s.interpolate(limit_area="inside"))
+_im = t.row_status == "interpolated"
+interp_err = float((_lin[_im] - t.duration_min[_im]).abs().max())
+interp_match = int(((_lin[_im] - t.duration_min[_im]).abs() <= 0.0005).sum())
+max_gap_len = int(t.loc[_im, "gap_len_h"].max())
+assert interp_match == n_int and max_gap_len == 3, "interpolation rule no longer reproduces the file"
+# T7 rule check: run of identical durations over consecutive observed hours on one route
+_isobs = t.row_status == "observed"
+_k = (t.route_code.ne(t.route_code.shift()) | t.duration_min.ne(t.duration_min.shift()) | t.row_status.ne(t.row_status.shift())).cumsum()
+t["_flatrun"] = t.groupby(_k).duration_min.transform("size")
+FLAT_MIN = 6
+_flat_rule = _isobs & (t._flatrun >= FLAT_MIN)
+_isflat = qa.str.contains("flatline")
+flat_rule_n, flat_rule_hit = int(_flat_rule.sum()), int((_flat_rule & _isflat).sum())
+flat_extra = int((_isflat & ~_flat_rule).sum())
+flat_extra_minrun = int(t.loc[_isflat & ~_flat_rule, "_flatrun"].min()) if flat_extra else 0
+# T6b duplicate scrapes; T13 speed; T14 distance ratio vs the route's median observed distance
+dup_scrape = int(t.dropna(subset=["scraped_at_ist"]).duplicated(["route_code", "scraped_at_ist"]).sum())
+spd_min, spd_max = float(t.speed_kmph.min()), float(t.speed_kmph.max())
+spd_bad = int(((t.speed_kmph < 3) | (t.speed_kmph > 80)).sum())
+dur_bad = int((t.duration_min <= 0).sum())
+_dmed = t.route_code.map(obs.groupby("route_code").distance_km.median())
+t["_dratio"] = t.distance_km / _dmed
+_isalt, _isdet = qa.str.contains("alt_route"), qa.str.contains("detour")
+_plain = _isobs & t.distance_km.notna() & ~_isalt & ~_isdet
+alt_lo, alt_hi = float(t.loc[_isalt, "_dratio"].min()), float(t.loc[_isalt, "_dratio"].max())
+det_lo, plain_hi = float(t.loc[_isdet, "_dratio"].min()), float(t.loc[_plain, "_dratio"].max())
+assert plain_hi <= 1.10 < alt_lo and alt_hi < 1.5 < det_lo, "distance thresholds no longer separate the flags"
+dist_min, dist_max = float(t.distance_km.min()), float(t.distance_km.max())
 
 log("T1", "Traffic", "Type casting", "hour_ist and scraped_at_ist are text with a +05:30 offset; date is text",
     "dtypes; string suffix check", f"{n(NT)} rows",
@@ -182,17 +212,25 @@ log("T3", "Traffic", "Gap", f"Hourly grid is complete (13 routes x 8,760 h = {n(
     "Kept the rows on the grid and labelled them in row_status. Analyses use observed rows only.",
     "A complete grid makes gaps visible and joins safe; averages from observed rows only avoid mixing in estimated values.", f"{n(NT)} -> {n(n_obs)} used", CONF)
 log("T4", "Traffic", "Gap (filled)", f"Short gaps interpolated: {n(n_int)} rows, longest filled run = {max_interp_run} h; {n(n_durint)} more rows were scraped but had no duration and got an interpolated duration",
-    "row_status = interpolated / observed_dur_interpolated", f"{n(n_int + n_durint)} rows", pc(n_int + n_durint, NT),
-    f"Filled gaps of up to {max_interp_run} hours only. Interpolation method is not recorded in the file.",
-    "A 1-3 hour hole barely changes a smooth daily curve; longer holes would invent traffic.", f"{n(n_int + n_durint)} filled", ASK + " (method: linear? cap rule?)")
+    "row_status = interpolated / observed_dur_interpolated; re-interpolated each route and compared", f"{n(n_int + n_durint)} rows", pc(n_int + n_durint, NT),
+    f"Rule: linear interpolation of duration_min between the nearest observed hours on the same route, only when the gap is <= 3 h (gap_len_h <= 3), rounded to 3 decimals. "
+    f"Re-running this rule reproduces {n(interp_match)} of {n(n_int)} interpolated values (max difference {interp_err:.4f} min); longest filled gap = {max_gap_len} h. Gaps > 3 h stay empty (T5).",
+    "A 1-3 hour hole barely changes a smooth daily curve; longer holes would invent traffic.", f"{n(n_int + n_durint)} filled",
+    CONF + " (rule worked out from the data; the upstream cleaning script is not in the repo)")
 log("T5", "Traffic", "Gap (not filled)", f"{n(n_miss)} rows left empty in {n_long_runs} runs of more than 3 h: all 13 routes on 2026-02-06 ({n(feb6)} rows), one route for {int(xg_run.n)} h ({xg_run.start:%d %b} - {xg_run.end:%d %b %Y}), another for {int(wp_run.n)} h ({wp_run.start:%d %b} - {wp_run.end:%d %b %Y}), the rest scattered",
     "Run-length scan", f"{n(n_miss)} rows", pc(n_miss, NT), "Not filled; duration, speed and congestion are blank.",
     "Filling a whole day or multi-week stretch would fabricate a pattern. Excluded by the observed-only rule.", f"{n(n_miss)} -> {n(n_miss)} blank", CONF)
-log("T6", "Traffic", "Duplicate", "Duplicate (route, hour) keys", "duplicated()", f"{dup_traffic} rows", "0%",
-    "Checked, none found.", "Grid is unique by construction.", f"{n(NT)} -> {n(NT)}", CONF)
+log("T6", "Traffic", "Duplicate", "Duplicate (route, hour) keys; duplicate (route, scrape time) readings",
+    "duplicated() on (route_code, hour_ist) and on (route_code, scraped_at_ist)", f"{dup_traffic} + {dup_scrape} rows", "0%",
+    "Rule: one row per route per hour; if two readings fall in the same hour keep one (PySpark step 3 collapses any duplicates). Checked, none found.",
+    "Grid is unique by construction.", f"{n(NT)} -> {n(NT)}", CONF)
 log("T7", "Traffic", "Outlier - sensor failure", f"Flat-lined duration: the same value repeated ({n(n_flat)} rows on 4 routes)",
-    "qa_flag = flatline", f"{n(n_flat)} rows", pc(n_flat, NT), "Flagged and kept. Max effect on any heatmap cell if removed: 0.002 index points.",
-    "Likely a stuck reading, but removing it changes nothing visible.", f"{n(n_flat)} flagged", ASK + " (flatline rule)")
+    f"qa_flag = flatline; run-length of identical duration_min over consecutive observed hours", f"{n(n_flat)} rows", pc(n_flat, NT),
+    f"Rule: flag when the same duration_min repeats for >= {FLAT_MIN} consecutive observed hours on one route. "
+    f"This reproduces {n(flat_rule_hit)} of {n(n_flat)} flags, and every run of >= {FLAT_MIN} ({n(flat_rule_n)} rows) is flagged; "
+    f"the other {flat_extra} flagged rows sit in shorter runs ({flat_extra_minrun}-{FLAT_MIN - 1} h) that this rule does not explain. Flagged and kept. Max effect on any heatmap cell if removed: 0.002 index points.",
+    "Likely a stuck reading, but removing it changes nothing visible.", f"{n(n_flat)} flagged",
+    CONF + " (rule worked out from the data; the upstream cleaning script is not in the repo)")
 log("T8", "Traffic", "Outlier - alternate route", f"Google returned a longer alternate route: {n(n_alt)} rows, median distance {alt_med:.1f} km vs {norm_med:.1f} km normal; most on Sarjapur Road and Hosur Road. Detours: {n(n_det)} rows",
     "qa_flag = alt_route / detour", f"{n(n_alt)} + {n(n_det)} rows", pc(n_alt + n_det, NT),
     "Flagged and kept. Removing all flagged rows moves any heatmap cell by at most "
@@ -211,6 +249,15 @@ log("T11", "Traffic", "Gap (columns)", f"Embedded AccuWeather columns are {pc(em
     "A column that is 84% blank cannot support an hourly analysis.", f"{n(NT)} -> {n(NT)}", CONF)
 log("T12", "Traffic", "Consistency check", f"speed = distance / duration holds (max error {spd_diff:.3f} km/h); congestion_index = duration / free-flow holds (max error {ci_diff:.3f})",
     "Recomputed both columns", "0 failures", "0%", "Checked, none found.", "Derived columns can be trusted.", f"{n(NT)} -> {n(NT)}", CONF)
+log("T13", "Traffic", "Validity - speed", f"speed_kmph ranges {spd_min:.1f}-{spd_max:.1f} km/h; duration_min <= 0 on {dur_bad} rows",
+    "Range check: speed < 3 or > 80 km/h, duration <= 0", f"{spd_bad} rows", pc(spd_bad, NT),
+    "Rule: a reading is invalid if speed < 3 km/h or > 80 km/h (above the city limit on any of these roads) or duration <= 0. None found, nothing removed.",
+    "Impossible speeds would mean a bad scrape; all values are plausible for city traffic.", f"{n(NT)} -> {n(NT)}", CONF)
+log("T14", "Traffic", "Validity - distance", f"distance_km ranges {dist_min:.1f}-{dist_max:.1f} km; ratio to the route's median distance is <= {plain_hi:.2f} on unflagged observed rows, "
+    f"{alt_lo:.2f}-{alt_hi:.2f} on alt_route rows and >= {det_lo:.2f} on detour rows",
+    "distance_km / median observed distance_km of the route", f"{n(n_alt)} + {n(n_det)} rows", pc(n_alt + n_det, NT),
+    "Rule (observed rows only; interpolated rows inherit a neighbour's distance and are not flagged): ratio > 1.10 -> alt_route; ratio > 1.5 -> detour (the gap between 1.42 and 1.53 in the data means any cut-off in that range gives the same flags). Flagged and kept (see T8).",
+    "A different distance means Google routed the trip differently, so the duration is not comparable to the usual route.", f"{n(n_alt + n_det)} flagged", CONF)
 
 # ================================================================== WEATHER
 for w in (w1, w2):
