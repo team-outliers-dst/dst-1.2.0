@@ -7,7 +7,7 @@ Reads the raw exports you download from Trends (columns: query, search interest,
 The list type (top / rising) and the window START date are read from the file name.
 NOTE: the end date is not in the file name - write each window's end date in your source register.
 
-Usage : python text_themes.py INPUT_DIR [OUT_DIR]
+Usage : python text_themes.py INPUT_DIR [OUT_DIR] [traffic|metro]   (keep traffic and metro files in separate folders)
 Output: queries_all.csv, themes_summary.csv, unmatched_queries.csv, themes_chart.png
 Needs : pip install pandas matplotlib
 """
@@ -20,17 +20,31 @@ IN = sys.argv[1] if len(sys.argv) > 1 else "."
 OUT = sys.argv[2] if len(sys.argv) > 2 else "text_output"
 os.makedirs(OUT, exist_ok=True)
 
-# theme -> keywords (lower-case substrings). A query can match several themes. Edit after reading unmatched_queries.csv.
-THEMES = {
-    "Fines / challans / penalties": ["fine", "fines", "challan", "violation", "penalt", "discount", "rebate", "e-challan", "parivahan", "pay "],
-    "Congestion / live traffic": ["today", "live", "jam", "news", "update", "advisory", "restriction", "so much traffic", "long weekend",
-                                  "traffic in bangalore", "bengaluru traffic"],
-    "Police / BTP": ["police", "btp"],
-    "Specific junctions / roads": ["silk board", "hebbal", "kr puram", "marathahalli", "outer ring", "orr ", "electronic city", "whitefield",
-                                   "hosur", "sarjapur", "mysore road", "airport road", "flyover", "junction"],
-    "Rain / weather": ["rain", "flood", "waterlog", "weather"],
-    "Metro / transit": ["metro", "bmtc", "bus ", "purple line", "yellow line"],
+# Theme sets: theme -> keywords (lower-case substrings). A query can match several themes.
+# Edit after reading unmatched_queries.csv. Choose a set with the 3rd argument: traffic (default) or metro.
+THEME_SETS = {
+    "traffic": ("bangalore traffic", {
+        "Fines / challans / penalties": ["fine", "fines", "challan", "violation", "penalt", "discount", "rebate", "e-challan", "parivahan", "pay "],
+        "Congestion / live traffic": ["today", "live", "jam", "news", "update", "advisory", "restriction", "so much traffic", "long weekend",
+                                      "traffic in bangalore", "bengaluru traffic"],
+        "Police / BTP": ["police", "btp"],
+        "Specific junctions / roads": ["silk board", "hebbal", "kr puram", "marathahalli", "outer ring", "orr ", "electronic city", "whitefield",
+                                       "hosur", "sarjapur", "mysore road", "airport road", "flyover", "junction"],
+        "Rain / weather": ["rain", "flood", "waterlog", "weather"],
+        "Metro / transit": ["metro", "bmtc", "bus ", "purple line", "yellow line"],
+    }),
+    "metro": ("bangalore metro", {
+        "New / yellow / pink lines (launch news)": ["yellow line", "pink line", "blue line", "orange line", "phase 3", "new metro line", "upcoming",
+                                                    "inauguration", "bommasandra", "rv road", "modi", "when will", "completion", "is yellow line"],
+        "Maps / routes / stations": ["map", "route", "stops", "station", "nearest", "near me", "line"],
+        "Timings / schedule": ["timing", "first metro", "last metro", "start", "starting", "starts", "what time", "frequency", "metro time"],
+        "Tickets / cards / app": ["ticket", "card", "recharge", "qr", "whatsapp", "app", "fare", "balance"],
+        "Places / visitor trips (not commuting)": ["palace", "lalbagh", "iskcon", "ikea", "mall", "temple", "hospital", "places to visit", "commercial street",
+                                                   "bus stand", "railway", "orion", "botanical"],
+    }),
 }
+MODE = sys.argv[3] if len(sys.argv) > 3 else "traffic"
+TERM, THEMES = THEME_SETS[MODE]
 
 frames = []
 for p in sorted(glob.glob(f"{IN}/searched_with_*queries*.csv")):
@@ -69,7 +83,7 @@ for ax, kind in zip(axes, ["top", "rising"]):
     ax.set_xlabel("Share of the list's total search interest"); ax.legend(frameon=False, fontsize=8)
     ax.spines[["top", "right"]].set_visible(False)
 top_all = S[S.window.str.startswith("Top")].groupby("theme")["share_of_search_interest"].mean().drop("Other").idxmax()
-fig.suptitle(f"What people search alongside \"bangalore traffic\": '{top_all}' dominates the top searches", x=0.01, ha="left", fontsize=12, fontweight="bold")
+fig.suptitle(f"What people search alongside \"{TERM}\": '{top_all}' leads the top searches", x=0.01, ha="left", fontsize=12, fontweight="bold")
 fig.text(0.01, -0.02, "Source: Google Trends related queries, Karnataka. A query can fall under several themes, so shares can exceed 100% in total.", fontsize=7, color="gray")
 fig.tight_layout(rect=(0, 0, 1, 0.93)); fig.savefig(f"{OUT}/themes_chart.png", dpi=200, bbox_inches="tight")
 
