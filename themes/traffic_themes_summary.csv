@@ -1,0 +1,36 @@
+window,list,theme,n_queries,n_total,share_of_queries,share_of_search_interest
+Rising (from 01 Oct 2025),rising,Fines / challans / penalties,25,50,0.5,0.436
+Rising (from 01 Oct 2025),rising,Congestion / live traffic,22,50,0.44,0.38
+Rising (from 01 Oct 2025),rising,Police / BTP,5,50,0.1,0.165
+Rising (from 01 Oct 2025),rising,Specific junctions / roads,0,50,0.0,0.0
+Rising (from 01 Oct 2025),rising,Rain / weather,0,50,0.0,0.0
+Rising (from 01 Oct 2025),rising,Metro / transit,0,50,0.0,0.0
+Rising (from 01 Oct 2025),rising,Other,3,50,0.06,0.034
+Rising (from 17 Jun 2026),rising,Fines / challans / penalties,22,25,0.88,0.954
+Rising (from 17 Jun 2026),rising,Congestion / live traffic,0,25,0.0,0.0
+Rising (from 17 Jun 2026),rising,Police / BTP,4,25,0.16,0.049
+Rising (from 17 Jun 2026),rising,Specific junctions / roads,0,25,0.0,0.0
+Rising (from 17 Jun 2026),rising,Rain / weather,0,25,0.0,0.0
+Rising (from 17 Jun 2026),rising,Metro / transit,0,25,0.0,0.0
+Rising (from 17 Jun 2026),rising,Other,2,25,0.08,0.015
+Rising (from 17 Nov 2025),rising,Fines / challans / penalties,13,14,0.929,0.964
+Rising (from 17 Nov 2025),rising,Congestion / live traffic,0,14,0.0,0.0
+Rising (from 17 Nov 2025),rising,Police / BTP,1,14,0.071,0.036
+Rising (from 17 Nov 2025),rising,Specific junctions / roads,0,14,0.0,0.0
+Rising (from 17 Nov 2025),rising,Rain / weather,0,14,0.0,0.0
+Rising (from 17 Nov 2025),rising,Metro / transit,0,14,0.0,0.0
+Rising (from 17 Nov 2025),rising,Other,0,14,0.0,0.0
+Top (from 01 Mar 2026),top,Fines / challans / penalties,11,12,0.917,0.946
+Top (from 01 Mar 2026),top,Congestion / live traffic,0,12,0.0,0.0
+Top (from 01 Mar 2026),top,Police / BTP,1,12,0.083,0.054
+Top (from 01 Mar 2026),top,Specific junctions / roads,0,12,0.0,0.0
+Top (from 01 Mar 2026),top,Rain / weather,0,12,0.0,0.0
+Top (from 01 Mar 2026),top,Metro / transit,0,12,0.0,0.0
+Top (from 01 Mar 2026),top,Other,0,12,0.0,0.0
+Top (from 01 Oct 2025),top,Fines / challans / penalties,38,50,0.76,0.846
+Top (from 01 Oct 2025),top,Congestion / live traffic,9,50,0.18,0.101
+Top (from 01 Oct 2025),top,Police / BTP,3,50,0.06,0.051
+Top (from 01 Oct 2025),top,Specific junctions / roads,0,50,0.0,0.0
+Top (from 01 Oct 2025),top,Rain / weather,0,50,0.0,0.0
+Top (from 01 Oct 2025),top,Metro / transit,0,50,0.0,0.0
+Top (from 01 Oct 2025),top,Other,1,50,0.02,0.008

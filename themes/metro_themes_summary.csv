@@ -1,0 +1,37 @@
+window,list,theme,n_queries,n_total,share_of_queries,share_of_search_interest
+Rising (from 01 Aug 2025),rising,New / yellow / pink lines (launch news),45,50,0.9,0.766
+Rising (from 01 Aug 2025),rising,Maps / routes / stations,45,50,0.9,0.975
+Rising (from 01 Aug 2025),rising,Timings / schedule,8,50,0.16,0.053
+Rising (from 01 Aug 2025),rising,Tickets / cards / app,0,50,0.0,0.0
+Rising (from 01 Aug 2025),rising,Places / visitor trips (not commuting),0,50,0.0,0.0
+Rising (from 01 Aug 2025),rising,Other,0,50,0.0,0.0
+Rising (from 01 Sep 2025),rising,New / yellow / pink lines (launch news),0,50,0.0,0.0
+Rising (from 01 Sep 2025),rising,Maps / routes / stations,18,50,0.36,0.442
+Rising (from 01 Sep 2025),rising,Timings / schedule,11,50,0.22,0.434
+Rising (from 01 Sep 2025),rising,Tickets / cards / app,5,50,0.1,0.047
+Rising (from 01 Sep 2025),rising,Places / visitor trips (not commuting),12,50,0.24,0.07
+Rising (from 01 Sep 2025),rising,Other,8,50,0.16,0.031
+Rising (from 08 Aug 2025),rising,New / yellow / pink lines (launch news),26,50,0.52,0.612
+Rising (from 08 Aug 2025),rising,Maps / routes / stations,32,50,0.64,0.734
+Rising (from 08 Aug 2025),rising,Timings / schedule,11,50,0.22,0.245
+Rising (from 08 Aug 2025),rising,Tickets / cards / app,4,50,0.08,0.043
+Rising (from 08 Aug 2025),rising,Places / visitor trips (not commuting),1,50,0.02,0.014
+Rising (from 08 Aug 2025),rising,Other,3,50,0.06,0.072
+Top (from 01 Aug 2025),top,New / yellow / pink lines (launch news),26,50,0.52,0.375
+Top (from 01 Aug 2025),top,Maps / routes / stations,45,50,0.9,0.916
+Top (from 01 Aug 2025),top,Timings / schedule,4,50,0.08,0.049
+Top (from 01 Aug 2025),top,Tickets / cards / app,0,50,0.0,0.0
+Top (from 01 Aug 2025),top,Places / visitor trips (not commuting),0,50,0.0,0.0
+Top (from 01 Aug 2025),top,Other,1,50,0.02,0.036
+Top (from 01 Sep 2025),top,New / yellow / pink lines (launch news),10,50,0.2,0.133
+Top (from 01 Sep 2025),top,Maps / routes / stations,38,50,0.76,0.817
+Top (from 01 Sep 2025),top,Timings / schedule,5,50,0.1,0.093
+Top (from 01 Sep 2025),top,Tickets / cards / app,2,50,0.04,0.012
+Top (from 01 Sep 2025),top,Places / visitor trips (not commuting),1,50,0.02,0.006
+Top (from 01 Sep 2025),top,Other,4,50,0.08,0.071
+Top (from 08 Aug 2025),top,New / yellow / pink lines (launch news),30,50,0.6,0.52
+Top (from 08 Aug 2025),top,Maps / routes / stations,45,50,0.9,0.938
+Top (from 08 Aug 2025),top,Timings / schedule,4,50,0.08,0.035
+Top (from 08 Aug 2025),top,Tickets / cards / app,0,50,0.0,0.0
+Top (from 08 Aug 2025),top,Places / visitor trips (not commuting),0,50,0.0,0.0
+Top (from 08 Aug 2025),top,Other,1,50,0.02,0.027
