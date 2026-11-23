@@ -1,3 +1,4 @@
 # Temporary Microsoft Office files
 ~$*
 *.tmp
+venv/
