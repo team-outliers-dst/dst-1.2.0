@@ -1,6 +1,6 @@
-# The 8PM Problem — Case Study B
+# The 8PM Problem - Case Study B
 
-A multi-tool analysis of road traffic, Namma Metro ridership, weather, and public search interest across Bengaluru, covering **October 2025 – September 2026** (13 road routes, hourly granularity).
+A multi-tool analysis of road traffic, Namma Metro ridership, weather, and public search interest across Bengaluru, covering **October 2025 - September 2026** (13 road routes, hourly granularity).
 
 ---
 
@@ -151,4 +151,3 @@ Load `sql/sql_tables.sql` then `sql/sql_queries.sql` into MySQL Workbench (schem
 - `row_status = 'observed'` rows are real readings. Interpolated and `missing_hour` rows are excluded from all averages.
 - Weather was fetched with `timezone=Asia/Kolkata`; a time-zone sanity check (average temperature peaks at ~14–15 h IST) is logged by the PySpark job.
 - Rain thresholds used: Light < 2.5 mm/h, Moderate 2.5–7.6 mm/h, Heavy > 7.6 mm/h.
-- The `venv/` directory is git-ignored.
