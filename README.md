@@ -1,10 +1,10 @@
-# The 8PM Problem — Case Study 1
+# The 8PM Problem — Case Study B
 
 A multi-tool analysis of road traffic, Namma Metro ridership, weather, and public search interest across Bengaluru, covering **October 2025 – September 2026** (13 road routes, hourly granularity).
 
 ---
 
-## Research Questions
+## Research Question
 
 How do commuting patterns across weekdays, Fridays and weekends influence traffic congestion in Bengaluru, and how are those patterns associated with metro ridership, weather and google trends searches for the same?
 
@@ -13,7 +13,7 @@ How do commuting patterns across weekdays, Fridays and weekends influence traffi
 ## Repository Layout
 
 ```
-Case Study 1/
+dst-1.2.0/
 ├── final_data/                  # Source CSVs (checked in; large files zipped)
 │   ├── traffic_bangalore_clean_2025-10_2026-09.csv
 │   ├── bengaluru_13_routes_weather_aug_sep_2025.csv
