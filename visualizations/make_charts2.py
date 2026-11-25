@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 IN = sys.argv[1] if len(sys.argv) > 1 else "pyspark"
-OUT = sys.argv[2] if len(sys.argv) > 2 else "pyspark/charts"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "visualizations/figures"
 TRAFFIC_CSV = sys.argv[3] if len(sys.argv) > 3 else "final_data/traffic_bangalore_clean_2025-10_2026-09.csv"
 os.makedirs(OUT, exist_ok=True)
 

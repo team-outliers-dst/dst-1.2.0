@@ -6,7 +6,8 @@ Usage:
     python3 -I build_cleaning_log_and_charts.py [<final_data_dir> <out_dir>]   (no arguments: data = ../final_data, out = ./out)
 
   final_data_dir : folder holding the final data files (zips already unzipped; searched recursively)
-  out_dir        : where the charts and the log are written
+  out_dir        : where the logs are written
+  figures_dir    : where the charts are written
 
 Every number in the log and every chart title is computed here from the data files.
 Chart titles are guarded by assert statements: if the data stops supporting a title, the script stops.
@@ -26,12 +27,19 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from scipy import stats
 
-BASE = Path(__file__).resolve().parent                      # the folder this script sits in
-if len(sys.argv) >= 3:                                        # optional: python3 script.py <data_dir> <out_dir>
-    DATA_DIR, OUT_DIR = Path(sys.argv[1]), Path(sys.argv[2])
+BASE = Path(__file__).resolve().parent
+if len(sys.argv) >= 4:
+    DATA_DIR, OUT_DIR, FIG_OUT = Path(sys.argv), Path(sys.argv), Path(sys.argv)
+elif len(sys.argv) == 3:
+    DATA_DIR, OUT_DIR = Path(sys.argv), Path(sys.argv)
+    FIG_OUT = BASE / "figures"
 else:
-    DATA_DIR, OUT_DIR = BASE.parent / "final_data", BASE / "out"
+    DATA_DIR = BASE.parent / "final_data"
+    OUT_DIR = BASE / "out"
+    FIG_OUT = BASE / "figures"
+
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+FIG_OUT.mkdir(parents=True, exist_ok=True)
 
 # ------------------------------------------------------------------ style (validated palette, light surface)
 INK, INK2, MUTED, GRID, AXIS, SURF = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#fcfcfb"
@@ -491,7 +499,7 @@ titles(fig,
        f"Mean congestion index by weekday and hour, 13 routes, 1 Oct 2025 - 30 Sep 2026. {n(n_obs)} observed route-hours; interpolated and missing hours excluded. "
        "White dot = busiest hour of that weekday (Tuesday peaks at 09:00).",
        f"Dropping all {n(n_flag_obs)} flagged observed rows (alternate routes, flat-lines, extreme events) moves no cell by more than {sens_max:.2f}.")
-fig.savefig(OUT_DIR / "fig1_weekday_hour_heatmap.png", dpi=200)
+fig.savefig(FIG_OUT / "fig1_weekday_hour_heatmap.png", dpi=200)
 plt.close(fig)
 
 # ---------- Figure 2 rain vs congestion
@@ -563,7 +571,7 @@ titles(fig,
        "Only Friday's interval stays above zero.",
        "Association, not cause. Rainy evenings cluster in Jun-Sep, which is already busier, so the headline bars compare within the same season (Oct-Nov, Dec-Feb, Mar-May, Jun-Sep). "
        f"{n_drop} rainy route-evenings had no dry match in their season and were dropped. Sources: traffic + Open-Meteo weather.", wrap=100)
-fig.savefig(OUT_DIR / "fig2_rain_vs_evening_congestion.png", dpi=200)
+fig.savefig(FIG_OUT / "fig2_rain_vs_evening_congestion.png", dpi=200)
 plt.close(fig)
 
 # ---------- Figure 3 normalised: congestion z vs Trends z
@@ -603,7 +611,7 @@ titles(fig,
        f"Both series standardised (z-scores) so they share one axis. Daily, 1 Oct 2025 - 30 Sep 2026; days with fewer than half their route-hours observed excluded ({len(dz_)} of 365 days kept, {len(j)} joined). "
        f"Spearman rank r = {r_sp:.2f}.",
        "Association only. Trends is a relative index of search interest, not trips; its scaling method is not documented in the file. Sources: traffic + Google Trends.", wrap=120)
-fig.savefig(OUT_DIR / "fig3_trends_vs_congestion_zscores.png", dpi=200)
+fig.savefig(FIG_OUT / "fig3_trends_vs_congestion_zscores.png", dpi=200)
 plt.close(fig)
 
 # ---------- Figure 4 metro hourly by day group
@@ -640,7 +648,7 @@ titles(fig,
        f"Monday morning {d_am['Mon'] * 100:+.0f}%, evening {d_pm['Mon'] * 100:+.0f}%.",
        f"Only the 68 stations open all period (the 15 new Yellow Line stations are excluded); public holidays (15 Aug, 5 Sep) excluded; 19-31 Aug is absent from the source. "
        f"Only {ndays['Fri']} Fridays remain, so treat the Friday figures as indicative. Source: BMRCL RTI data (ODbL).", wrap=105)
-fig.savefig(OUT_DIR / "fig4_metro_hourly_by_day_group.png", dpi=200)
+fig.savefig(FIG_OUT / "fig4_metro_hourly_by_day_group.png", dpi=200)
 plt.close(fig)
 
 # ---------- Figure 5 roads vs metro weekday index (shared dates)
@@ -705,7 +713,7 @@ titles(fig,
        f"All seven days on the same {len(sh)} dates for both sources, {sh.index.min():%d %b %Y} - {sh.index.max():%d %b %Y} (all dates with both), public holidays excluded. Each dot = that day's average as % of the Tue-Thu average; line = 95% interval (bootstrap over days).",
        f"Metro = daily tickets as published (checks in log D4). The daily Total is higher from mid-Aug 2026 (D8), but only {n_post} of the {len(sh)} dates fall after {RISE:%d %b}; re-indexing each day against its own period moves the metro indices by at most {adj_shift:.1f} points. "
        "15 Dec 2025 excluded as a copy of 11 Dec (D6); 17 Jul 2026 kept as published (D7). Metro dates are only the days BMRCL published.", wrap=88)
-fig.savefig(OUT_DIR / "fig5_roads_vs_metro_weekday_index.png", dpi=200)
+fig.savefig(FIG_OUT / "fig5_roads_vs_metro_weekday_index.png", dpi=200)
 plt.close(fig)
 
 # ---------- Figure 6 gap chart
@@ -803,7 +811,7 @@ h_pct = 100 * (exp_h - NH) / exp_h
 titles(fig,
        f"Most gaps sit in the metro feeds: {meta_pct:.0f}% of daily ticket days and {h_pct:.0f}% of hourly station-hours are missing, against {100 * n_miss / NT:.1f}% of traffic hours left empty",
        None, "Traffic gaps up to 3 hours were interpolated; longer ones were left empty. Weather, Google Trends and the calendar have no gaps. Each panel uses the source's own expected grid.", wrap=112)
-fig.savefig(OUT_DIR / "fig6_gap_chart.png", dpi=170)
+fig.savefig(FIG_OUT / "fig6_gap_chart.png", dpi=170)
 plt.close(fig)
 
 # ================================================================== REPORT TABLES

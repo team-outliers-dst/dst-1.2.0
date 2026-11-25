@@ -14,7 +14,7 @@ How do commuting patterns across weekdays, Fridays and weekends influence traffi
 
 ```
 dst-1.2.0/
-├── final_data/                  # Source CSVs (checked in; large files zipped)
+├── final_data/                     # Source CSVs (checked in; large files zipped)
 │   ├── traffic_bangalore_clean_2025-10_2026-09.csv
 │   ├── bengaluru_13_routes_weather_aug_sep_2025.csv
 │   ├── bengaluru_13_routes_weather_oct_2025_sep_2026.csv
@@ -24,11 +24,11 @@ dst-1.2.0/
 │   ├── trends_daily_traffic.csv
 │   └── trends_daily_metro.csv
 │
-├── excel/                       # Excel pivot tables and workbooks
+├── excel/                           # Excel pivot tables and workbooks
 │   ├── Bengaluru_Traffic_Analysis.xlsx
 │   └── excel_pivot_values.xlsx
 │
-├── pandas/                      # Python/pandas analysis
+├── pandas/                          # Python/pandas analysis
 │   ├── traffic_pandas_analysis.py
 │   ├── weekday_hour_pivot.csv
 │   ├── weekday_hour_heatmap.png
@@ -37,28 +37,34 @@ dst-1.2.0/
 │   ├── busiest_hour_per_day.csv
 │   └── excel_pandas_difference.csv  # Cross-validation vs Excel
 │
-├── sql/                         # MySQL schema, queries, and ERD
+├── sql/                             # MySQL schema, queries, and ERD
 │   ├── sql_tables.sql
 │   ├── sql_queries.sql
 │   ├── bengaluru_mobility_ERD.mwb
 │   └── bengaluru_mobility_ER.png
 │
-├── pyspark/                     # PySpark analysis and charts
+├── pyspark/                         # PySpark analysis and charts
 │   ├── pyspark_traffic_weather.py   # Main PySpark job
-│   ├── make_charts.py               # Chart generation from PySpark outputs
 │   ├── heatmap_weekday_hour.csv
 │   ├── heatmap_pivot.csv
 │   ├── route_ranking.csv
 │   ├── rain_effect_controlled.csv
 │   ├── rain_effect_simple.csv
-│   ├── pyspark_row_counts.csv       # Row-count audit log
-│   └── charts/                      # PNG outputs from make_charts.py
+│   └── pyspark_row_counts.csv       # Row-count audit log
 │
-└── themes/                      # Google Trends "related queries" analysis
-    ├── text_themes.py
-    ├── themes_summary.csv
-    ├── themes_chart.png
-    └── searched_with_*.csv          # Raw exports from Google Trends
+├── themes/                          # Google Trends "related queries" analysis
+│   ├── text_themes.py
+│   ├── themes_summary.csv
+│   ├── themes_chart.png
+│   └── searched_with_*.csv          # Raw exports from Google Trends
+│
+└── visualizations/
+    ├── make_charts1.py              # Chart and logs generation
+    ├── make_charts2.py              # Chart generation from PySpark outputs
+    ├── build_docs_tables.py         
+    ├── build_xlsx.py
+    ├── figures/                     # PNG output figures
+    └── out/                         # Logs and data inventory
 ```
 
 ---
@@ -84,7 +90,7 @@ dst-1.2.0/
 | **pandas**        | `pandas/traffic_pandas_analysis.py`         | Hour × weekday pivot, heatmap, cross-validation vs Excel           |
 | **MySQL**         | `sql/sql_tables.sql`, `sql/sql_queries.sql` | Normalised schema (7 tables, 5 views), 6 analytical queries        |
 | **PySpark**       | `pyspark/pyspark_traffic_weather.py`        | Resampled hourly table, traffic–weather join, rain-effect analysis |
-| **matplotlib**    | `pyspark/make_charts.py`                    | 5 publication-ready PNG charts                                     |
+| **matplotlib**    | `visualizations/make_charts1.py`, `visualizations/make_charts2.py`                    |Publication-ready PNG charts                                     |
 | **Google Trends** | `themes/text_themes.py`                     | Theme tagging and share-of-interest chart                          |
 
 ---
@@ -117,9 +123,13 @@ python pyspark/pyspark_traffic_weather.py
 ### 4. Charts
 
 ```bash
-python pyspark/make_charts.py
+python visualizations/make_charts1.py
+# Reads  → final_data/
+# Outputs → visualizations/figures/
+
+python visualizations/make_charts2.py
 # Reads  → pyspark/
-# Outputs → pyspark/charts/
+# Outputs → visualizations/figures/
 ```
 
 ### 5. Google Trends theme analysis
